@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MKCD - Flutter GUI Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-elevated: #0f172a;
+      --fg: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --card: rgba(15, 23, 42, 0.8);
+      --border: rgba(107, 114, 128, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'JetBrains Mono', monospace;
+      overflow-x: hidden;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      position: sticky;
+      top: 20px;
+      background: var(--bg-elevated);
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .toolbar button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .toolbar button:hover {
+      border-color: var(--accent);
+      color: var(--fg);
+    }
+
+    .toolbar button.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    /* Diagram area */
+    .diagram-section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      color: var(--fg);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Component box */
+    .component-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .component-box:hover {
+      border-color: var(--accent);
+    }
+
+    .component-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .component-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .component-name {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .component-desc {
+      color: var(--muted);
+      font-size: 9px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Arrow */
+    .arrow {
+      position: absolute;
+      stroke: var(--accent);
+      stroke-width: 2;
+      marker-end: url(#arrowhead);
+      fill: none;
+    }
+
+    .arrow-label {
+      position: absolute;
+      color: var(--muted);
+      font-size: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      pointer-events: none;
+    }
+
+    /* Arrowhead marker */
+    defs {
+      marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+      </marker>
+    }
+
+    /* Summary cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .summary-card h4 {
+      color: var(--fg);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .summary-card p {
+      color: var(--muted);
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      margin: 4px 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .container {
+        padding: 10px;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+    }
+</style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>MKCD - Flutter GUI Architecture</h1>
+      <div class="subtitle">
+        Music CD Maker - Graphical Interface using Flutter
+      </div>
+
+      <div class="toolbar">
+        <span>MKCD v1.0</span>
+        <button class="active" onclick="showOverview()">Overview</button>
+        <button onclick="showDetails()">Details</button>
+      </div>
+
+      <div class="diagram-section" id="overview">
+        <div class="section-title">Application Overview</div>
+        
+        <svg viewBox="0 0 1000 680" width="100%" height="auto">
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+            </marker>
+          </defs>
+
+          <!-- UI Layer -->
+          <g id="ui-layer">
+            <!-- Main Window -->
+            <rect x="20" y="40" width="360" height="560" rx="6" fill="var(--card)" stroke="#3f83f8" stroke-width="1.5"/>
+            <text x="180" y="70" fill="white" font-size="11" font-weight="600" text-anchor="middle">Mkcd Home Page</text>
+            <text x="180" y="84" fill="#94a3b8" font-size="9" text-anchor="middle">Flutter StatefulWidget</text>
+          </g>
+
+          <!-- Service Layer -->
+          <g id="service-layer">
+            <!-- CdService -->
+            <rect x="560" y="40" width="180" height="120" rx="6" fill="var(--card)" stroke="#10b981" stroke-width="1.5"/>
+            <text x="650" y="70" fill="white" font-size="11" font-weight="600" text-anchor="middle">CdService</text>
+            <text x="650" y="84" fill="#94a3b8" font-size="9" text-anchor="middle">dart:io + Process.run</text>
+          </g>
+
+          <!-- Model Layer -->
+          <g id="model-layer">
+            <!-- Track -->
+            <rect x="20" y="180" width="180" height="80" rx="6" fill="var(--card)" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="110" y="210" fill="white" font-size="11" font-weight="600" text-anchor="middle">Track Model</text>
+            <text x="110" y="224" fill="#94a3b8" font-size="9" text-anchor="middle">path, name, durationSec, index</text>
+            
+            <!-- CdProject -->
+            <rect x="230" y="180" width="180" height="80" rx="6" fill="var(--card)" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="320" y="210" fill="white" font-size="11" font-weight="600" text-anchor="middle">CdProject Model</text>
+            <text x="320" y="224" fill="#94a3b8" font-size="9" text-anchor="middle">JSON serialization</text>
+          </g>
+
+          <!-- External Dependencies -->
+          <g id="deps-layer">
+            <!-- file_picker -->
+            <rect x="560" y="180" width="180" height="80" rx="6" fill="var(--card)" stroke="#8b5cf6" stroke-width="1.5"/>
+            <text x="650" y="210" fill="white" font-size="11" font-weight="600" text-anchor="middle">file_picker</text>
+            <text x="650" y="224" fill="#94a3b8" font-size="9" text-anchor="middle">system dialogs</text>
+            
+            <!-- ffmpeg/ffprobe -->
+            <rect x="770" y="180" width="180" height="80" rx="6" fill="var(--card)" stroke="#ef4444" stroke-width="1.5"/>
+            <text x="870" y="210" fill="white" font-size="11" font-weight="600" text-anchor="middle">ffmpeg/ffprobe</text>
+            <text x="870" y="224" fill="#94a3b8" font-size="9" text-anchor="middle">audio conversion</text>
+          </g>
+
+          <!-- Connection Arrows -->
+          <!-- Src Dir → Scan → Service -->
+          <path class="arrow" d="M 200 130 L 560 130"/>
+          <text class="arrow-label" x="330" y="125">scan directory</text>
+          
+          <!-- Service → Tracks -->
+          <path class="arrow" d="M 740 150 L 200 250"/>
+          <text class="arrow-label" x="470" y="245">sort & evaluate</text>
+          
+          <!-- Tracks → UI -->
+          <path class="arrow" d="M 340 290 L 200 330"/>
+          <text class="arrow-label" x="270" y="335">display list</text>
+          
+          <!-- Service → Convert/Burn -->
+          <path class="arrow" d="M 740 250 L 740 400"/>
+          <text class="arrow-label" x="770" y="295">convert & burn</text>
+          
+          <!-- UI → Output Dir -->
+          <path class="arrow" d="M 380 500 L 560 500"/>
+          <text class="arrow-label" x="470" y="505">output dir</text>
+          
+          <!-- file_picker → Src Dir -->
+          <path class="arrow" d="M 560 130 L 560 170"/>
+        </svg>
+      </div>
+
+      <div class="diagram-section" id="details">
+        <div class="section-title">Component Details</div>
+
+        <div class="summary-grid">
+          <div class="summary-card">
+            <h4>Frontend</h4>
+            <p>• Flutter Material Design</h>
+            <p>• StatefulWidget architecture</p>
+            <p>• file_picker system dialogs</p>
+          </h4>
+          <p style="font-size: 10px; margin-top: 8px;">lib/main.dart (607 lines)</p>
+          <p style="font-size: 10px;">✓ 2 analyze issues (info)</p>
+        </div>
+
+          <div class="summary-card">
+            <h4>Business Logic</h4>
+            <p>• CdService: ffmpeg/ffprobe/cli</h>
+            <p>• Track model with duration</p>
+            <p>• CdProject JSON persistence</p>
+          </h4>
+          <p style="font-size: 10px; margin-top: 8px;">lib/services/cd_service.dart</p>
+          <p style="font-size: 10px;">✓ Build succeeds</p>
+        </div>
+
+        <div class="summary-card">
+            <h4>Data Models</h4>
+            <p>• Track: path, name, durationSec, index</p>
+            <p>• SortMode: name | time | track | none</p>
+            <p>• CdProject: JSON serialization</p>
+          </h4>
+          <p style="font-size: 10px; margin-top: 8px;">lib/models/track.dart</p>
+          <p style="font-size: 10px;">✓ No conflicts</p>
+        </div>
+
+        <div class="summary-card">
+            <h4>External Tools</h4>
+            <p>• ffmpeg: audio conversion</p>
+            <p>• ffprobe: duration analysis</p>
+            <p>• cdrecord: audio CD burning</p>
+            <p>• file_picker: system dialogs</p>
+          </h4>
+          <p style="font-size: 10px; margin-top: 8px;">OS-level dependencies</p>
+          <p style="font-size: 10px;">• Linux: cdrecord, ffmpeg</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showOverview() {
+        document.getElementById('overview').style.display = 'block';
+        document.getElementById('details').style.display = 'none';
+      }
+
+      function showDetails() {
+        document.getElementById('overview').style.display = 'none';
+        document.getElementById('details').style.display = 'block';
+      }
+
+      // Initially show overview
+      showOverview();
+    </script>
+  </body>
+</html>

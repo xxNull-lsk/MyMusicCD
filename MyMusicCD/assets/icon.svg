@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- 背景渐变: 深紫 (与应用主题色一致) -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9d6bff"/>
+      <stop offset="0.55" stop-color="#6d28d9"/>
+      <stop offset="1" stop-color="#3b0764"/>
+    </linearGradient>
+    <!-- 光盘盘面 -->
+    <radialGradient id="disc" cx="0.4" cy="0.3" r="0.9">
+      <stop offset="0" stop-color="#46466a"/>
+      <stop offset="0.65" stop-color="#23233a"/>
+      <stop offset="1" stop-color="#14141f"/>
+    </radialGradient>
+    <!-- 顶部柔光 -->
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 背景圆角方块 -->
+  <rect width="1024" height="1024" rx="228" fill="url(#bg)"/>
+  <ellipse cx="512" cy="170" rx="430" ry="260" fill="url(#glow)"/>
+
+  <!-- 光盘投影 -->
+  <ellipse cx="524" cy="514" rx="292" ry="292" fill="#000000" opacity="0.28"/>
+
+  <!-- 光盘 -->
+  <g transform="translate(512,470)">
+    <circle r="292" fill="url(#disc)"/>
+    <!-- 彩虹轨道 -->
+    <g fill="none" opacity="0.9">
+      <circle r="272" stroke="#fbbf24" stroke-width="9"/>
+      <circle r="251" stroke="#f472b6" stroke-width="9"/>
+      <circle r="230" stroke="#c084fc" stroke-width="9"/>
+      <circle r="209" stroke="#818cf8" stroke-width="9"/>
+      <circle r="188" stroke="#38bdf8" stroke-width="9"/>
+      <circle r="167" stroke="#34d399" stroke-width="9"/>
+      <circle r="146" stroke="#fbbf24" stroke-width="7" opacity="0.5"/>
+      <circle r="127" stroke="#f472b6" stroke-width="7" opacity="0.5"/>
+      <circle r="108" stroke="#c084fc" stroke-width="7" opacity="0.5"/>
+      <circle r="89"  stroke="#38bdf8" stroke-width="7" opacity="0.5"/>
+    </g>
+    <!-- 盘面高光弧 -->
+    <path d="M -268 -108 A 290 290 0 0 1 108 -268" fill="none"
+          stroke="#ffffff" stroke-width="16" stroke-linecap="round" opacity="0.38"/>
+    <!-- 中心孔 -->
+    <circle r="56" fill="#4c1d95"/>
+    <circle r="56" fill="none" stroke="#1e1b4b" stroke-width="5"/>
+    <path d="M -38 -28 A 47 47 0 0 1 28 -38" fill="none"
+          stroke="#c4b5fd" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+  </g>
+
+  <!-- 音符 -->
+  <g transform="translate(575,612) scale(1.05)" fill="#ffffff">
+    <ellipse cx="0" cy="0" rx="54" ry="39" transform="rotate(-16)"/>
+    <rect x="40" y="-222" width="17" height="226" rx="6"/>
+    <path d="M 57 -222 C 162 -212 206 -136 179 -50 C 165 -106 126 -143 57 -154 Z"/>
+  </g>
+</svg>
