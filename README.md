@@ -21,7 +21,7 @@ MakeCD/
 │   ├── lib/            # Dart 源码
 │   │   ├── main.dart   # 主界面
 │   │   ├── models/     # 数据模型 (project.dart, track.dart)
-│   │   └── services/   # 服务层 (cd_service.dart, output_dir.dart)
+│   │   └── services/   # 服务层 (cd_service.dart, native_file_dialog.dart, output_dir.dart)
 │   ├── assets/         # 图标资源
 │   └── linux/          # Linux 平台配置
 ├── mkcd.sh             # 命令行 CD 制作脚本

@@ -2,10 +2,10 @@ import 'dart:io';
 import 'dart:ui' show AppExitResponse;
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
-import 'package:file_picker/file_picker.dart';
 import 'models/project.dart';
 import 'models/track.dart';
 import 'services/cd_service.dart';
+import 'services/native_file_dialog.dart';
 import 'services/output_dir.dart';
 
 Future<void> main() async {
@@ -119,11 +119,11 @@ class _ProjectManagerState extends State<ProjectManager> {
         ? _projectNameController.text.trim()
         : 'MyCDProject';
     final project = CdProject(name: projectName);
-    final jsonPath = p.join(dir.path, '${projectName.toLowerCase().replaceAll(' ', '_')}.json');
-    await _service.saveProject(project, jsonPath);
+    final projectPath = p.join(dir.path, '${projectName.toLowerCase().replaceAll(' ', '_')}.mycd');
+    await _service.saveProject(project, projectPath);
      setState(() {
        _project = project;
-       _projectFilePath = jsonPath;
+       _projectFilePath = projectPath;
        _tracks = _projectTracksToTracks(project.tracks);
        _status = '';
        _progress = 0;
@@ -133,13 +133,13 @@ class _ProjectManagerState extends State<ProjectManager> {
    }
 
    Future<void> _openProject() async {
-    final jsonPath = await _pickProjectFile('打开项目');
-    if (jsonPath == null) return;
+    final projectPath = await _pickProjectFile('打开项目');
+    if (projectPath == null) return;
     try {
-      final project = await _service.loadProject(jsonPath);
+      final project = await _service.loadProject(projectPath);
        setState(() {
          _project = project;
-         _projectFilePath = jsonPath;
+         _projectFilePath = projectPath;
          _tracks = _projectTracksToTracks(project.tracks);
          _status = '';
          _progress = 0;
@@ -181,18 +181,15 @@ class _ProjectManagerState extends State<ProjectManager> {
       return;
     }
 
-    final result = await FilePicker.platform.pickFiles(
-      dialogTitle: '选择音频文件',
-      type: FileType.custom,
-      allowedExtensions: CdService.audioExtensions.toList(),
-      allowMultiple: true,
+    final paths = await NativeFileDialog.pickFiles(
+      title: '选择音频文件',
+      filterName: '音频文件',
+      extensions: CdService.audioExtensions.toList(),
+      multiple: true,
     );
-    if (result == null) return;
+    if (paths.isEmpty) return;
 
-    final files = result.files
-        .where((f) => f.path != null)
-        .map((f) => File(f.path!))
-        .toList();
+    final files = paths.map((path) => File(path)).toList();
     await _appendTracks(files);
   }
 
@@ -413,11 +410,11 @@ class _ProjectManagerState extends State<ProjectManager> {
       return;
     }
 
-    final savePath = await FilePicker.platform.saveFile(
-      dialogTitle: '保存 ISO 镜像',
+    final savePath = await NativeFileDialog.saveFile(
+      title: '保存 ISO 镜像',
       fileName: '${_project?.name ?? 'music'}.iso',
-      type: FileType.custom,
-      allowedExtensions: ['iso'],
+      filterName: 'ISO 镜像文件',
+      extensions: ['iso'],
     );
     if (savePath == null) return;
 
@@ -483,16 +480,17 @@ class _ProjectManagerState extends State<ProjectManager> {
   }
 
   Future<Directory?> _pickSrcDir() async {
-    final dir = await FilePicker.platform.getDirectoryPath();
+    final dir = await NativeFileDialog.getDirectoryPath(title: '选择目录');
     return dir != null ? Directory(dir) : null;
   }
 
   Future<String?> _pickProjectFile(String title) async {
-    final result = await FilePicker.platform.pickFiles(
-      dialogTitle: title,
-      allowedExtensions: ['json'],
+    final paths = await NativeFileDialog.pickFiles(
+      title: title,
+      filterName: '我的音乐CD项目文件',
+      extensions: ['mycd'],
     );
-    return result?.files.single.path;
+    return paths.isEmpty ? null : paths.first;
   }
 
   void _showError(String msg) {
